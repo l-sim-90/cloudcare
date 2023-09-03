@@ -15,7 +15,7 @@
     ```
 3. Run the docker container
     ```sh
-    docker-compose up
+    docker-compose up -d 
     ```
 4. Open the browser and go to http://localhost:8080
 
