@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  web:
+    image: nginx:latest
+    container_name: nginx-container
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - .:/var/www/html
+    depends_on:
+      - app
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app-container
+    volumes:
+      - .:/app
+    environment:
+      - "DB_HOST=db"
+      - "DB_PORT=3306"
+      - "DB_DATABASE=laravel"
+      - "DB_USERNAME=root"
+      - "DB_PASSWORD=password"
+
+  db:
+    image: mariadb:10.5.8
+    container_name: mysql-container
+    environment:
+      - "MYSQL_DATABASE=laravel"
+      - "MYSQL_USER=root"
+      - "MYSQL_PASSWORD=password"
+      - "MYSQL_ROOT_PASSWORD=password"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
