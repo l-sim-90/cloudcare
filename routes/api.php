@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\ViewErrorBag;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,13 +20,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-
-// routes/api.php
-
 Route::post('/login', function (Request $request) {
-    $credentials = $request->only('email', 'password');
+    $credentials = $request->only('name', 'password');
 
     if (!auth()->attempt($credentials)) {
+        $errors = Session::get('errors', new ViewErrorBag);
+        $errors->add('login', 'Invalid credentials');
+        Session::flash('errors', $errors);
         return response(['message' => 'Invalid credentials'], 401);
     }
 
@@ -37,10 +38,12 @@ Route::post('/login', function (Request $request) {
 
 Route::middleware('auth:sanctum')->get('/beers', function (Request $request) {
     $client = new \GuzzleHttp\Client();
+    $perPage = $request->get('per_page', 10);
+    $page = $request->get('page', 1);
     $response = $client->get('https://api.punkapi.com/v2/beers', [
         'query' => [
-            'page' => $request->get('page', 1),
-            'per_page' => 10, // Numero di birre per pagina
+            'page' => $page,
+            'per_page' => $perPage, // Numero di birre per pagina
         ]
     ]);
 
